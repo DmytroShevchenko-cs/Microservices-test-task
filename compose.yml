@@ -1,0 +1,60 @@
+services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
+
+  servicec:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: ServiceC/Dockerfile
+    environment:
+      - Kestrel__Endpoints__Grpc__Url=${KESTREL_URL:-http://0.0.0.0:8080}
+      - Kestrel__Endpoints__Grpc__Protocols=Http2
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - DOTNET_SYSTEM_NET_HTTP_SOCKETSHTTPHANDLER_HTTP2UNENCRYPTEDSUPPORT=true
+    ports:
+      - "5003:8080"
+
+  servicea:
+    
+    build:
+      context: .
+      dockerfile: ServiceA/Dockerfile
+    depends_on:
+      - servicec
+      - rabbitmq
+    environment:
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - RabbitMqSettings__HostName=${RABBIT_HOST}
+      - RabbitMqSettings__UserName=${RABBIT_USER}
+      - RabbitMqSettings__Password=${RABBIT_PASS}
+      - RabbitMqSettings__Port=${RABBIT_PORT}
+      - GrpcSettings__ServiceCUrl=${SERVICE_C_URL}
+    ports:
+      - "5001:8080"
+
+  serviceb:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: ServiceB/Dockerfile
+    depends_on:
+      - rabbitmq
+    environment:
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - RabbitMqSettings__HostName=${RABBIT_HOST}
+      - RabbitMqSettings__UserName=${RABBIT_USER}
+      - RabbitMqSettings__Password=${RABBIT_PASS}
+      - RabbitMqSettings__Port=${RABBIT_PORT}
+    ports:
+      - "5002:8080"
