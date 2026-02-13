@@ -1,5 +1,7 @@
 namespace ServiceC;
 
+using Services;
+
 public class Program
 {
     public static async Task Main(string[] args)
@@ -10,11 +12,11 @@ public class Program
         
         var app = builder.Build();
 
-        //app.MapGrpcService<object>();
+        app.MapGrpcService<ServiceCGrpcService>();
 
         app.MapGet("/", () => "gRPC server is running");
         
-        await app.StartAsync();
+        await app.RunAsync();
     }
 
     private static WebApplicationBuilder CreateApplicationBuilder(string[] args)

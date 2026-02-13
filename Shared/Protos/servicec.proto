@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option csharp_namespace = "Shared.Protos";
+
+package servicec;
+
+service ServiceC {
+  rpc FinalizeTransaction (FinalizeRequest) returns (FinalizeResponse);
+}
+
+message FinalizeRequest {
+  string transaction_id = 1;
+  bool service_a = 2;
+  bool service_b = 3;
+  string timestamp = 4;
+}
+
+message FinalizeResponse {
+  bool success = 1;
+  string processed_at = 3;
+}
