@@ -78,3 +78,5 @@ ASPNETCORE_ENVIRONMENT=Production
 3. Service A + Service B → Process messages
 4. Service A → gRPC → Service C (sync)
 5. Service A → Response → Client
+
+## UPD
